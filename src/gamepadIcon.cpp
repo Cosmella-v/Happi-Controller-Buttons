@@ -36,9 +36,15 @@ void gamepadIconSprite::draw()
 }
 void gamepadIconSprite::visit()
 {
+    #ifdef GEODE_IS_WINDOWS
     if (auto h = fast::get<cocos2d::CCApplication>()){ 
         if (!h->m_bControllerConnected) return;
     } else {return;}
+    #else
+     if (auto h = fast::get<cocos2d::CCApplication>()){ 
+        if (!h->getControllerConnected()) return;
+    } else {return;}
+    #endif
     CCSprite::visit();
 };
 
@@ -47,8 +53,14 @@ void gamepadIconNodeGroup::draw() {
 };
 void gamepadIconNodeGroup::visit()
 {
+    #ifdef GEODE_IS_WINDOWS
     if (auto h = fast::get<cocos2d::CCApplication>()){ 
         if (!h->m_bControllerConnected) return;
     } else {return;}
+    #else
+     if (auto h = fast::get<cocos2d::CCApplication>()){ 
+        if (!h->getControllerConnected()) return;
+    } else {return;}
+    #endif
     CCNode::visit();
 };

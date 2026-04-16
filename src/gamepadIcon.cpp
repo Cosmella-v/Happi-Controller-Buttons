@@ -41,9 +41,7 @@ void gamepadIconSprite::visit()
         if (!h->m_bControllerConnected) return;
     } else {return;}
     #else
-     if (auto h = fast::get<cocos2d::CCApplication>()){ 
-        if (!h->getControllerConnected()) return;
-    } else {return;}
+        if (!PlatformToolbox::isControllerConnected()) return;
     #endif
     CCSprite::visit();
 };
@@ -58,9 +56,7 @@ void gamepadIconNodeGroup::visit()
         if (!h->m_bControllerConnected) return;
     } else {return;}
     #else
-     if (auto h = fast::get<cocos2d::CCApplication>()){ 
-        if (!h->getControllerConnected()) return;
-    } else {return;}
+        if (!PlatformToolbox::isControllerConnected()) return;
     #endif
     CCNode::visit();
 };

@@ -8,7 +8,10 @@ else()
 endif()
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
-project(Happi Controller Buttons VERSION 1.0.0)
+project(HappiControllerButtons
+    VERSION 1.0.0
+    LANGUAGES CXX
+)
 
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*.cpp)
 

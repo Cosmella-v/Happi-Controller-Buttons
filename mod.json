@@ -8,6 +8,9 @@
 	},
 	"id": "cosmella.controllerbuttons-2",
 	"name": "Happi Controller Buttons :3",
+	"api": {"include": [
+		"include/*.hpp"
+	]},
 	"version": "v1.0.1",
 	"tags": ["bugfix"],
 	"settings": {

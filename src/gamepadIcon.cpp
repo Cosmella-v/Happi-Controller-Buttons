@@ -1,4 +1,4 @@
-// someone will kill me for changing draw and hooking visit
+// someone will kill me for changing draw and visit
 #include "gamepadIcon.hpp"
 #include <Geode/Geode.hpp>
 #include <Geode/modify/CCSprite.hpp>
@@ -20,8 +20,8 @@ using namespace geode::prelude;
     }; \
     float sx = p->getScaleX(); \
     float sy = p->getScaleY(); \
-    float centerX = size.width * 0.5f; \
-    float centerY = size.height; \
+    float centerX = size.width * .5f; \
+    float centerY = size.height * .5f; \
     kmGLTranslatef(centerX, centerY, 0); \
     if (sx != 0 && sy != 0){ \
         kmGLScalef(fScaleXB / sx, fScaleYB / sy, 1.0f); \
@@ -30,33 +30,27 @@ using namespace geode::prelude;
     return Old; \
 
 
-void gamepadIconSprite::draw()
-{
-    Drawer(CCSprite::draw());
-}
-void gamepadIconSprite::visit()
-{
-    #ifdef GEODE_IS_WINDOWS
-    if (auto h = fast::get<cocos2d::CCApplication>()){ 
-        if (!h->m_bControllerConnected) return;
-    } else {return;}
-    #else
-        if (!PlatformToolbox::isControllerConnected()) return;
-    #endif
-    CCSprite::visit();
-};
-
 void gamepadIconNodeGroup::draw() {
     Drawer(CCNode::draw());
 };
+bool g_toggle = false;
 void gamepadIconNodeGroup::visit()
 {
-    #ifdef GEODE_IS_WINDOWS
-    if (auto h = fast::get<cocos2d::CCApplication>()){ 
-        if (!h->m_bControllerConnected) return;
-    } else {return;}
-    #else
-        if (!PlatformToolbox::isControllerConnected()) return;
-    #endif
+    if (!g_toggle) {
+        #ifdef GEODE_IS_WINDOWS
+        if (auto h = fast::get<cocos2d::CCApplication>()){ 
+            if (!h->m_bControllerConnected) return;
+        } else {return;}
+        #else
+            if (!PlatformToolbox::isControllerConnected()) return;
+        #endif
+    }
     CCNode::visit();
 };
+
+$on_mod(Loaded) {
+	g_toggle = geode::Mod::get()->getSettingValue<bool>("force-icons");
+	geode::listenForSettingChanges<bool>("force-icons", [](bool toggled){
+        g_toggle = toggled;
+    });
+}

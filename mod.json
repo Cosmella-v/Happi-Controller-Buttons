@@ -3,11 +3,21 @@
 	"gd": {
 		"win": "2.2081",
 		"android": "2.2081",
+		"ios": "2.2081",
 		"mac": "2.2081"
 	},
 	"id": "cosmella.controllerbuttons-2",
 	"name": "Happi Controller Buttons :3",
-	"version": "v1.0.0",
+	"version": "v1.0.1",
+	"tags": ["bugfix"],
+	"settings": {
+		"force-icons": {
+			"name": "Force icons",
+			"description": "Force the icons to show without a controller attached.",
+			"type": "bool",
+			"default": false
+		}
+	},
 	"developer": "Cosmella",
 	"description": "Gd Controller buttons suck, lets make them happi :3",
 	"dependencies": {

@@ -1,105 +1,102 @@
 
 #include <Geode/Geode.hpp>
-#include <Geode/modify/CCSprite.hpp>
 #include <Geode/modify/CCNode.hpp>
+#include <Geode/modify/CCSprite.hpp>
 using namespace geode::prelude;
-class gamepadIconSprite : public CCSprite {
-public:
-static gamepadIconSprite* createWithTexture(CCTexture2D *pTexture)
-{
-    gamepadIconSprite *pobSprite = new gamepadIconSprite();
-    if (pobSprite && pobSprite->initWithTexture(pTexture))
-    {
-        pobSprite->autorelease();
-        return pobSprite;
-    }
-    CC_SAFE_DELETE(pobSprite);
-    return NULL;
+
+// from custom keybinds
+static void addBindSprites(CCNodeRGBA *target, const char *action, Mod *mod) {
+	if (target == nullptr)
+		return;
+	if (mod == nullptr)
+		return;
+	target->removeAllChildren();
+	bool first = true;
+	for (auto &bind : mod->getSettingValue<std::vector<Keybind>>(action)) {
+		if (!first) {
+			auto separator = CCLabelBMFont::create("/", "goldFont.fnt");
+			separator->setScale(.8f);
+			separator->setOpacity(target->getOpacity());
+			target->addChild(separator);
+		}
+		first = false;
+		auto label = bind.createNode();
+		if (auto text = typeinfo_cast<CCLabelBMFont *>(label)) {
+			text->setFntFile("bigFont.fnt");
+		}
+		label->setScale(.8f);
+		if (auto rgba = typeinfo_cast<CCRGBAProtocol *>(label)) {
+			rgba->setOpacity(target->getOpacity());
+		}
+		target->addChild(label);
+	};
+    target->updateLayout(); 
 }
 
-static gamepadIconSprite* createWithTexture(CCTexture2D *pTexture, const CCRect& rect)
-{
-    gamepadIconSprite *pobSprite = new gamepadIconSprite();
-    if (pobSprite && pobSprite->initWithTexture(pTexture, rect))
-    {
-        pobSprite->autorelease();
-        return pobSprite;
-    }
-    CC_SAFE_DELETE(pobSprite);
-    return NULL;
-}
+class gamepadIconNodeGroup : public CCNodeRGBA {
+  public:
+	static gamepadIconNodeGroup *create() {
+		gamepadIconNodeGroup *pnode = new gamepadIconNodeGroup();
+		if (pnode && pnode->init()) {
+			pnode->autorelease();
+			return pnode;
+		}
+		CC_SAFE_DELETE(pnode);
+		return NULL;
+	};
+	void DefaultIcon(Keybind defaultKey){
+		if (m_setting && m_mod) return addBindSprites(this, m_setting, m_mod);
+		if (CCNode* Node = defaultKey.createNode()) {
+			this->removeAllChildren();
+			this->addChild(Node); 
+			this->updateLayout(); 
+		}
+	}
+	void LinkTo(const char *setting, Mod *mod) {
+        if (Warn()) {
+            geode::log::error("Node has already been registered with setting\nthis may break mods please report this!");
+            return;
+        };
+		m_setting = setting;
+		m_mod = mod;
+		addBindSprites(this, m_setting, m_mod);
+        this->addEventListener(SettingChangedEventV3(mod, m_setting),
+        [this](auto h){
+            addBindSprites(this, m_setting, m_mod);
+        });
+	};
+	void LinkTo(const char *setting, Mod *mod, CCMenuItem *item) {
+        if (Warn()) {
+            geode::log::error("Node has already been registered with callback\nthis may break mods please report this!");
+            return;
+        };
+		m_setting = setting;
+		m_mod = mod;
+		addBindSprites(this, m_setting, m_mod);
+        this->addEventListener(SettingChangedEventV3(mod, m_setting),
+            [this](auto h){
+                addBindSprites(this, m_setting, m_mod);
+            });
+		m_listener = this->addEventListener(
+		    KeybindSettingPressedEventV3(m_mod, m_setting),
+		    [item = WeakRef<CCMenuItem>(item)](Keybind const &keybind, bool down, bool repeat, double timestamp) {
+			    if (repeat || !down) {
+				    return ListenerResult::Propagate;
+			    }
+                if (auto c = item.lock()) c->activate();
 
-static gamepadIconSprite* create(const char *pszFileName)
-{
-    gamepadIconSprite *pobSprite = new gamepadIconSprite();
-    if (pobSprite && pobSprite->initWithFile(pszFileName))
-    {
-        pobSprite->autorelease();
-        return pobSprite;
-    }
-    CC_SAFE_DELETE(pobSprite);
-    return NULL;
-}
+			    return ListenerResult::Stop;
+		    });
+	};
 
-static gamepadIconSprite* create(const char *pszFileName, const CCRect& rect)
-{
-    gamepadIconSprite *pobSprite = new gamepadIconSprite();
-    if (pobSprite && pobSprite->initWithFile(pszFileName, rect))
-    {
-        pobSprite->autorelease();
-        return pobSprite;
-    }
-    CC_SAFE_DELETE(pobSprite);
-    return NULL;
-}
-
-static gamepadIconSprite* createWithSpriteFrame(CCSpriteFrame *pSpriteFrame)
-{
-    gamepadIconSprite *pobSprite = new gamepadIconSprite();
-    if (pSpriteFrame && pobSprite && pobSprite->initWithSpriteFrame(pSpriteFrame))
-    {
-        pobSprite->autorelease();
-        return pobSprite;
-    }
-    CC_SAFE_DELETE(pobSprite);
-    return NULL;
-}
-
-static gamepadIconSprite* createWithSpriteFrameName(const char *pszSpriteFrameName)
-{
-    return gamepadIconSprite::createWithSpriteFrame(CCSpriteFrameCache::sharedSpriteFrameCache()->spriteFrameByName(pszSpriteFrameName));
-}
-
-static gamepadIconSprite* create()
-{
-    gamepadIconSprite *pSprite = new gamepadIconSprite();
-    if (pSprite && pSprite->init())
-    {
-        pSprite->autorelease();
-        return pSprite;
-    }
-    CC_SAFE_DELETE(pSprite);
-    return NULL;
-}
-protected:
-    void draw() override;
-    void visit() override;
-};
-
-class gamepadIconNodeGroup : public CCNode {
-public:
-static gamepadIconNodeGroup* create()
-{
-    gamepadIconNodeGroup *pnode = new gamepadIconNodeGroup();
-    if (pnode && pnode->init())
-    {
-        pnode->autorelease();
-        return pnode;
-    }
-    CC_SAFE_DELETE(pnode);
-    return NULL;
-}
-protected:
-    void draw() override;
-    void visit() override;
+  protected:
+	const char *m_setting;
+	Mod *m_mod;
+	CCMenuItem *m_item;
+    ListenerHandle* m_listener;
+    bool Warn() {
+        return m_listener != nullptr || m_mod != nullptr || m_setting != nullptr;
+    };
+	void draw() override;
+	void visit() override;
 };

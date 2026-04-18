@@ -2,11 +2,11 @@
 #include <Geode/modify/LeaderboardsLayer.hpp>
 #include "../SingletonCache.hpp"
 using namespace geode::prelude;
-bool g_toggle = false;
+bool gol_toggle = false;
 $on_mod(Loaded) {
-	g_toggle = geode::Mod::get()->getSettingValue<bool>("force-icons");
+	gol_toggle = geode::Mod::get()->getSettingValue<bool>("force-icons");
 	geode::listenForSettingChanges<bool>("force-icons", [](bool toggled){
-        g_toggle = toggled;
+        gol_toggle = toggled;
     });
 }
 
@@ -14,7 +14,7 @@ class $modify(Button2LeaderboardsLayer, LeaderboardsLayer) {
 	bool init(LeaderboardType type, LeaderboardStat Stat) {
 		if (!LeaderboardsLayer::init(type, Stat))
 			return false;
-		if (!g_toggle) {
+		if (!gol_toggle) {
 			#ifdef GEODE_IS_WINDOWS
 			if (auto h = fast::get<cocos2d::CCApplication>()){ 
 				if (!h->m_bControllerConnected) return true;

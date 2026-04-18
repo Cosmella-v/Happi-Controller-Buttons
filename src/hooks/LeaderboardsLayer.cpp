@@ -1,5 +1,6 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/LeaderboardsLayer.hpp>
+#include "../SingletonCache.hpp"
 using namespace geode::prelude;
 bool g_toggle = false;
 $on_mod(Loaded) {
